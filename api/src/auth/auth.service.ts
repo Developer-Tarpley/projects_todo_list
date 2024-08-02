@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 export class AuthService {
 
     signup(signupDTO: { name: string; email: string; username: string; password: string; }){
-        console.log("sign up dto: ", signupDTO);
+        // console.log("sign up dto: ", signupDTO);
+        return signupDTO;
     }
 }

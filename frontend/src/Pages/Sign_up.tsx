@@ -26,21 +26,32 @@ function isnotValidPWD(password : string){
     }
 }
 
+function isnotSamePWD(pass1: string, pass2: string){
+    if(pass1 === pass2){
+        return false;
+    }else{
+        return true;
+    }
+}
+
 export default function Sign_up() {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [password2, setPassword2] = useState("");
 
     const [inputErrorName, setInputErrorName] = useState(false);
     const [inputErrorEmail, setInputErrorEmail] = useState(false);
     const [inputErrorUsername, setInputErrorUsername] = useState(false);
     const [inputErrorPWD, setInputErrorPWD] = useState(false);
+    const [inputErrorPWD2, setInputErrorPWD2] = useState(false);
 
     const isErrorName = name === "" && inputErrorName;
     const isErrorEmail = isnotValidEmail(email) && inputErrorEmail;
     const isErrorUsername = isnotValidLength(username) && inputErrorUsername;
     const isErrorPWD = password === "" && inputErrorPWD;
+    const isErrorPWD2 = isnotSamePWD(password2,password) && inputErrorPWD2;
 
 
     async function signupSubmission() {
@@ -48,9 +59,11 @@ export default function Sign_up() {
         setInputErrorEmail(true);
         setInputErrorUsername(true);
         setInputErrorPWD(true);
+        setInputErrorPWD2(true);
 
-        if (name === "" || isnotValidEmail(email) || username === "" || password === "") {
-            console.log("Error has Occured!")!
+        if (name === "" || isnotValidEmail(email) || username === "" || password === "" || isnotSamePWD(password2,password)) {
+            // console.log("Error has Occured!")
+            return;
         } else {
             const response = await fetch(`http://localhost:3075/auth/sign_up`, {
                 method: 'POST',
@@ -67,10 +80,12 @@ export default function Sign_up() {
                 setInputErrorEmail(false);
                 setInputErrorUsername(false);
                 setInputErrorPWD(false);
+                setInputErrorPWD2(false);
                 setName("");
                 setEmail("");
                 setUsername("");
                 setPassword("");
+                setPassword2("");
             } else {
                 // show error message
             }
@@ -116,11 +131,11 @@ export default function Sign_up() {
                     {!isErrorPWD ? null : <FormErrorMessage>Password is required.</FormErrorMessage>}
                 </FormControl>
 
-                {/* <FormControl isRequired isInvalid={isErrorName} w="100%">
-                    <FormLabel>Name</FormLabel>
-                    <Input type='text' value={name ? name : ""} onChange={(e) => [setName(e.target.value), setInputError(false)]} />
-                    {!isErrorName ? null : <FormErrorMessage>Enter a name.</FormErrorMessage>}
-                </FormControl> */}
+                <FormControl isRequired isInvalid={isErrorPWD2} w="100%">
+                    <FormLabel>Confirm Password</FormLabel>
+                    <Input type='password' value={password2 ? password2 : ""} onChange={(e) => [setPassword2(e.target.value), setInputErrorPWD2(false)]} />
+                    {!isErrorPWD2 ? null : <FormErrorMessage>Passwords must match.</FormErrorMessage>}
+                </FormControl>
 
                 <Button onClick={signupSubmission} w="100%">Sign Up</Button>
             </Box>

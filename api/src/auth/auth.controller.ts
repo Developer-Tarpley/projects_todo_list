@@ -1,11 +1,25 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { IsNotEmpty, IsEmail } from 'class-validator';
 
-type signupDTO = {
-    name: string,
-    email: string,
-    username: string,
-    password: string,
+import * as sanitizeHTML from 'sanitize-html';
+import { Transform } from 'class-transformer';
+
+class signupDTO {
+    @IsNotEmpty()
+    @Transform((params)=> sanitizeHTML(params.value))
+    name: string;
+
+    @IsEmail()
+    @Transform((params)=> sanitizeHTML(params.value))
+    email: string;
+
+    @IsNotEmpty()
+    @Transform((params)=> sanitizeHTML(params.value))
+    username: string;
+
+    @IsNotEmpty()
+    password: string;
 }
 
 @Controller('auth')
