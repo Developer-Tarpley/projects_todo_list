@@ -1,20 +1,21 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
 import { AppService } from './app.service';
+import { AuthService } from './auth/auth.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  // constructor(private readonly appService: AuthService) {}
 
-  @Post('/name')
-  async addName(
-    @Body('firstName') firstName : string,
-    @Body('lastName') lastName: string
-  ){
-    return await this.appService.addName(firstName, lastName);
-  }
+  // @Post('/name')
+  // async addName(
+  //   @Body('firstName') firstName : string,
+  //   @Body('lastName') lastName: string
+  // ){
+  //   return await this.appService.addName(firstName, lastName);
+  // }
 
-  @Get()
-  async getNames() {
-    return this.appService.getNames();
-  }
+  // @Get()
+  // async getNames() {
+  //   return this.appService.getNames();
+  // }
 }
