@@ -80,15 +80,20 @@ export default function Log_in() {
 
     }// end func.
     return (
-        <Box gap={4} >
-            <Heading textAlign={"center"}>Log into Account</Heading>
+        <Box gap={4} py={20} >
+            <Heading textShadow='1px 1px #ffffff' m='6' mb={8} textAlign={"center"}>Log into Account</Heading>
             <Box
                 w="75%"
+                h="350px"
                 gap={4}
                 display="flex"
                 flexDir="column"
                 justifyContent="center"
                 m="0px auto"
+                bg={"#F7FAFC"}
+                borderRadius={"15px"}
+                boxShadow='dark-lg'
+                p={4}
             >
                 <FormControl isRequired isInvalid={isErrorUsername} w="100%">
                     <FormLabel>Username</FormLabel>

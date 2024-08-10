@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import { RouterProvider, createBrowserRouter, redirect } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter} from 'react-router-dom';
 import Sign_up from './Pages/Sign_up';
 import Log_in from './Pages/Log_in';
 import Projects from './Pages/Projects';
@@ -115,7 +115,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <>
-    <ToastContainer /> 
+    <ToastContainer />
     <RouterProvider router={router} />
   </>
 );

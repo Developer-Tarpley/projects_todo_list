@@ -1,15 +1,15 @@
-import { ChakraProvider } from '@chakra-ui/react';
+import { Box, ChakraProvider } from '@chakra-ui/react';
 import { Outlet, useLoaderData } from 'react-router-dom';
 import Header from './Components/Header';
 import { useState } from 'react';
 
-type DATA ={
+type DATA = {
   email: string,
   name: string,
   username: string
 }
 
-export type Context={
+export type Context = {
   loggedin: Boolean,
   toggleLog: () => void,
 }
@@ -18,11 +18,11 @@ function App() {
   const data = useLoaderData() as DATA | undefined;
   const [loggedin, setloggedin] = useState(data?.username !== undefined)
 
-  function toggleLog(){
+  function toggleLog() {
     setloggedin(!loggedin);
   }
 
-  const context : Context ={
+  const context: Context = {
     loggedin,
     toggleLog
   }
@@ -31,10 +31,12 @@ function App() {
   // console.log("Logged In: ",loggedin);
 
   return (
-   <ChakraProvider>
-    <Header loggedin={loggedin}/>
-    <Outlet context={context}/>
-   </ChakraProvider>
+    <ChakraProvider>
+      <Box bg={"lightgray"} h={"100vh"}>
+        <Header loggedin={loggedin} />
+        <Outlet context={context} />
+      </Box>
+    </ChakraProvider>
   );
 }
 

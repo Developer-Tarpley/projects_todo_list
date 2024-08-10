@@ -69,99 +69,65 @@ export default function Sign_up() {
         setInputErrorPWD2(true);
 
         if (name === "" || isnotValidEmail(email) || username === "" || password === "" || isnotSamePWD(password2, password)) {
-            // console.log("Error has Occured!")
             return;
         } else {
 
-                const response = await fetch(`http://localhost:3075/auth/sign_up`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ name, email, username, password }),
-                });
+            const response = await fetch(`http://localhost:3075/auth/sign_up`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ name, email, username, password }),
+            });
 
-                if (response.ok) {
-                    const data = await response.text();
-                    // console.log('data: ', data)
-                    context.toggleLog();
+            if (response.ok) {
+                const data = await response.text();
+                context.toggleLog();
 
-                    // would like to set this in env
-                    const token = data;
-                    localStorage.setItem("token", token);
+                const token = data;
+                localStorage.setItem("token", token);
 
-                    // console.log("response: ", response.text())
+                setInputErrorName(false);
+                setInputErrorEmail(false);
+                setInputErrorUsername(false);
+                setInputErrorPWD(false);
+                setInputErrorPWD2(false);
+                setName("");
+                setEmail("");
+                setUsername("");
+                setPassword("");
+                setPassword2("");
 
+                toast({
+                    title: 'Account created.',
+                    description: "We've created your account for you.",
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: true,
+                })
 
+                navigate(`/projects`);
+            } else {
+                setInputErrorName(false);
+                setInputErrorEmail(false);
+                setInputErrorUsername(false);
+                setInputErrorPWD(false);
+                setInputErrorPWD2(false);
+                setName("");
+                setEmail("");
+                setUsername("");
+                setPassword("");
+                setPassword2("");
 
-                    setInputErrorName(false);
-                    setInputErrorEmail(false);
-                    setInputErrorUsername(false);
-                    setInputErrorPWD(false);
-                    setInputErrorPWD2(false);
-                    setName("");
-                    setEmail("");
-                    setUsername("");
-                    setPassword("");
-                    setPassword2("");
-
-                    toast({
-                        title: 'Account created.',
-                        description: "We've created your account for you.",
-                        status: 'success',
-                        duration: 3000,
-                        isClosable: true,
-                    })
-
-                    navigate(`/projects`);
-                } else {
-                    // show error message
-
-
-                    setInputErrorName(false);
-                    setInputErrorEmail(false);
-                    setInputErrorUsername(false);
-                    setInputErrorPWD(false);
-                    setInputErrorPWD2(false);
-                    setName("");
-                    setEmail("");
-                    setUsername("");
-                    setPassword("");
-                    setPassword2("");
-
-                    toast({
-                        title: 'oops!',
-                        description: "something went wrong. Please try again",
-                        status: 'error',
-                        duration: 9000,
-                        isClosable: false,
-                    })
-                    // throw new Error("Error has occurred!")
-                // }
-
+                toast({
+                    title: 'oops!',
+                    description: "something went wrong. Please try again",
+                    status: 'error',
+                    duration: 9000,
+                    isClosable: false,
+                })
             }
-            //     else if (!response.ok) {
-            //         // show error message
 
-            //     setInputErrorName(false);
-            //     setInputErrorEmail(false);
-            //     setInputErrorUsername(false);
-            //     setInputErrorPWD(false);
-            //     setInputErrorPWD2(false);
-            //     setName("");
-            //     setEmail("");
-            //     setUsername("");
-            //     setPassword("");
-            //     setPassword2("");
-
-            //     toast({
-            //         title: 'Account not created.',
-            //         description: "oops! something went wrong. Please try again",
-            //         status: 'error',
-            //         duration: 9000,
-            //         isClosable: false,
-            //     })
-            // }
         }// end if.
 
     }// end func.
