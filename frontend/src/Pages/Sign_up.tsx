@@ -1,46 +1,64 @@
-import { Box, Button, FormControl, FormErrorMessage, FormHelperText, FormLabel, Heading, Input, Text } from "@chakra-ui/react";
+import { Box, Button, FormControl, FormErrorMessage, FormLabel, Heading, Input, useToast } from "@chakra-ui/react";
 import { useState } from "react";
+import { useNavigate, useOutletContext } from "react-router-dom";
+import { Context } from "../App";
 
-function isnotValidEmail(email : string){
+function isnotValidEmail(email: string) {
     const isValidEmail = RegExp(/\S+[@]\w+[.]\w+/);
-    if(email.match(isValidEmail)){
+    if (email.match(isValidEmail)) {
         return false;
-    }else{
+    } else {
         return true;
     }
 }
-function isnotValidLength(username : string){
+function isnotValidLength(username: string) {
     const isValidUsername = RegExp(/\S{8,}/);
-    if(username.match(isValidUsername)){
+    if (username.match(isValidUsername)) {
         return false;
-    }else{
+    } else {
         return true;
     }
 }
-function isnotValidPWD(password : string){
-    const isValidPWD = RegExp(/d/);
-    if(password.match(isValidPWD)){
+// function isnotValidPWD(password : string){
+//     const isValidPWD = RegExp(/d/);
+//     if(password.match(isValidPWD)){
+//         return false;
+//     }else{
+//         return true;
+//     }
+// }
+
+function isnotSamePWD(pass1: string, pass2: string) {
+    if (pass1 === pass2) {
         return false;
-    }else{
+    } else {
         return true;
     }
 }
 
 export default function Sign_up() {
+    const navigate = useNavigate();
+    const toast = useToast();
+    const context = useOutletContext() as Context;
+
+
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [password2, setPassword2] = useState("");
 
     const [inputErrorName, setInputErrorName] = useState(false);
     const [inputErrorEmail, setInputErrorEmail] = useState(false);
     const [inputErrorUsername, setInputErrorUsername] = useState(false);
     const [inputErrorPWD, setInputErrorPWD] = useState(false);
+    const [inputErrorPWD2, setInputErrorPWD2] = useState(false);
 
     const isErrorName = name === "" && inputErrorName;
     const isErrorEmail = isnotValidEmail(email) && inputErrorEmail;
     const isErrorUsername = isnotValidLength(username) && inputErrorUsername;
     const isErrorPWD = password === "" && inputErrorPWD;
+    const isErrorPWD2 = isnotSamePWD(password2, password) && inputErrorPWD2;
 
 
     async function signupSubmission() {
@@ -48,33 +66,103 @@ export default function Sign_up() {
         setInputErrorEmail(true);
         setInputErrorUsername(true);
         setInputErrorPWD(true);
+        setInputErrorPWD2(true);
 
-        if (name === "" || isnotValidEmail(email) || username === "" || password === "") {
-            console.log("Error has Occured!")!
+        if (name === "" || isnotValidEmail(email) || username === "" || password === "" || isnotSamePWD(password2, password)) {
+            // console.log("Error has Occured!")
+            return;
         } else {
-            const response = await fetch(`http://localhost:3075/auth/sign_up`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ name, email, username, password }),
-            });
-            const data = response;
 
-            if (data.ok) {
-                console.log('data: ', data)
-                setInputErrorName(false);
-                setInputErrorEmail(false);
-                setInputErrorUsername(false);
-                setInputErrorPWD(false);
-                setName("");
-                setEmail("");
-                setUsername("");
-                setPassword("");
-            } else {
-                // show error message
+                const response = await fetch(`http://localhost:3075/auth/sign_up`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, email, username, password }),
+                });
+
+                if (response.ok) {
+                    const data = await response.text();
+                    // console.log('data: ', data)
+                    context.toggleLog();
+
+                    // would like to set this in env
+                    const token = data;
+                    localStorage.setItem("token", token);
+
+                    // console.log("response: ", response.text())
+
+
+
+                    setInputErrorName(false);
+                    setInputErrorEmail(false);
+                    setInputErrorUsername(false);
+                    setInputErrorPWD(false);
+                    setInputErrorPWD2(false);
+                    setName("");
+                    setEmail("");
+                    setUsername("");
+                    setPassword("");
+                    setPassword2("");
+
+                    toast({
+                        title: 'Account created.',
+                        description: "We've created your account for you.",
+                        status: 'success',
+                        duration: 3000,
+                        isClosable: true,
+                    })
+
+                    navigate(`/projects`);
+                } else {
+                    // show error message
+
+
+                    setInputErrorName(false);
+                    setInputErrorEmail(false);
+                    setInputErrorUsername(false);
+                    setInputErrorPWD(false);
+                    setInputErrorPWD2(false);
+                    setName("");
+                    setEmail("");
+                    setUsername("");
+                    setPassword("");
+                    setPassword2("");
+
+                    toast({
+                        title: 'oops!',
+                        description: "something went wrong. Please try again",
+                        status: 'error',
+                        duration: 9000,
+                        isClosable: false,
+                    })
+                    // throw new Error("Error has occurred!")
+                // }
+
             }
-        }
+            //     else if (!response.ok) {
+            //         // show error message
+
+            //     setInputErrorName(false);
+            //     setInputErrorEmail(false);
+            //     setInputErrorUsername(false);
+            //     setInputErrorPWD(false);
+            //     setInputErrorPWD2(false);
+            //     setName("");
+            //     setEmail("");
+            //     setUsername("");
+            //     setPassword("");
+            //     setPassword2("");
+
+            //     toast({
+            //         title: 'Account not created.',
+            //         description: "oops! something went wrong. Please try again",
+            //         status: 'error',
+            //         duration: 9000,
+            //         isClosable: false,
+            //     })
+            // }
+        }// end if.
 
     }// end func.
 
@@ -116,11 +204,11 @@ export default function Sign_up() {
                     {!isErrorPWD ? null : <FormErrorMessage>Password is required.</FormErrorMessage>}
                 </FormControl>
 
-                {/* <FormControl isRequired isInvalid={isErrorName} w="100%">
-                    <FormLabel>Name</FormLabel>
-                    <Input type='text' value={name ? name : ""} onChange={(e) => [setName(e.target.value), setInputError(false)]} />
-                    {!isErrorName ? null : <FormErrorMessage>Enter a name.</FormErrorMessage>}
-                </FormControl> */}
+                <FormControl isRequired isInvalid={isErrorPWD2} w="100%">
+                    <FormLabel>Confirm Password</FormLabel>
+                    <Input type='password' value={password2 ? password2 : ""} onChange={(e) => [setPassword2(e.target.value), setInputErrorPWD2(false)]} />
+                    {!isErrorPWD2 ? null : <FormErrorMessage>Passwords must match.</FormErrorMessage>}
+                </FormControl>
 
                 <Button onClick={signupSubmission} w="100%">Sign Up</Button>
             </Box>
