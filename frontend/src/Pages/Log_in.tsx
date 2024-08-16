@@ -1,7 +1,8 @@
-import { Box, Button, FormControl, FormErrorMessage, FormLabel, Heading, Input, useToast } from "@chakra-ui/react";
+import { Box, Button, FormControl, FormErrorMessage, FormLabel, Heading, Input, Text, useToast } from "@chakra-ui/react";
 import { useState } from "react";
-import { redirect, useNavigate, useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { Context } from "../App";
+import User_Reset_Modal from "../Components/Login/User_Reset_Modal";
 
 
 
@@ -19,7 +20,7 @@ export default function Log_in() {
     const isErrorUsername = username === "" && inputErrorUsername;
     const isErrorPWD = password === "" && inputErrorPWD;
 
-    
+
     async function loginSubmission() {
         setInputErrorPWD(true);
         setInputErrorUsername(true);
@@ -79,8 +80,11 @@ export default function Log_in() {
         }// end if.
 
     }// end func.
+
+    // console.log("SHOW RESET: ",showReset)
     return (
         <Box gap={4} py={20} >
+            {context.showReset && <User_Reset_Modal />}
             <Heading textShadow='1px 1px #ffffff' m='6' mb={8} textAlign={"center"}>Log into Account</Heading>
             <Box
                 w="75%"
@@ -108,6 +112,17 @@ export default function Log_in() {
                 </FormControl>
 
                 <Button onClick={loginSubmission} w="100%">Log In</Button>
+
+                <Box
+                 display="flex"
+                 justifyContent="center"
+                 alignItems="center"
+                 gap={4}
+                 >
+                    <Text>forgot your password?</Text>
+                    <Button onClick={context.toggleReset}>Reset Password</Button>
+                </Box>
+                
             </Box>
 
 

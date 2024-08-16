@@ -11,6 +11,10 @@ export class UsersService {
         private usersRepository: Repository<User>,
     ) { };
 
+    async find_userid(id: number) {
+        return this.usersRepository.findBy({ id })
+    };
+   
     async find_user(username: string) {
         return this.usersRepository.findBy({ username })
     };

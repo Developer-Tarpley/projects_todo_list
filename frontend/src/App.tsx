@@ -1,4 +1,4 @@
-import { Box, ChakraProvider } from '@chakra-ui/react';
+import { Box, ChakraProvider, Heading } from '@chakra-ui/react';
 import { Outlet, useLoaderData } from 'react-router-dom';
 import Header from './Components/Header';
 import { useState } from 'react';
@@ -12,11 +12,18 @@ type DATA = {
 export type Context = {
   loggedin: Boolean,
   toggleLog: () => void,
+  showReset: Boolean,
+  toggleReset: () => void,
 }
 
 function App() {
   const data = useLoaderData() as DATA | undefined;
   const [loggedin, setloggedin] = useState(data?.username !== undefined)
+  const [showReset, setShowReset] = useState(false)
+
+  function toggleReset() {
+    setShowReset(!showReset);
+  }
 
   function toggleLog() {
     setloggedin(!loggedin);
@@ -24,7 +31,9 @@ function App() {
 
   const context: Context = {
     loggedin,
-    toggleLog
+    toggleLog,
+    showReset,
+    toggleReset
   }
 
   // console.log("data hook: ",data);

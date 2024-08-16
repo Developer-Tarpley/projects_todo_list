@@ -2,24 +2,34 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt'
 import { JwtService } from '@nestjs/jwt';
-import { LoginDTO, SignupDTO } from './auth.controller';
+import { AccDetailsDTO, LoginDTO, SignupDTO } from './auth.controller';
+import { User } from 'src/users/entity/users.entity';
+import { MailService } from 'src/mail/mail.service';
 
 
 
 
 @Injectable()
 export class AuthService {
-    constructor(private usersService: UsersService, private jwtService: JwtService) { }
+    constructor(private usersService: UsersService, private jwtService: JwtService, private mailService: MailService) { }
 
     async createHashAuth(userhash: string) {
         const saltrounds = 10;
         return bcrypt.hash(userhash, saltrounds)
     }
 
-    async createAccessToken(user: any) {
+    async createAccessToken(user: User, secret?: string) {
         // console.log("create access: ", user)
-        const payload = { sub: user.userId, username: user.username };
-        return await this.jwtService.signAsync(payload);
+        const payload = { sub: user.id };
+
+        if (secret) {
+            return await this.jwtService.signAsync(payload, {
+                secret: secret,
+                expiresIn: '10m',
+            });
+        } else {
+            return await this.jwtService.signAsync(payload);
+        }
     }
 
 
@@ -56,11 +66,11 @@ export class AuthService {
 
 
         if (user && islog) {
-          const { password, ...result } = user;
-          return result;
+            const { password, ...result } = user;
+            return result;
         }
         return null;
-      }
+    }
 
     async isnotlogMatch(credit1: string, credit2: string) {
         return await bcrypt.compare(credit1, credit2)
@@ -71,23 +81,62 @@ export class AuthService {
         const user = (await this.validateUser(loginDTO.username, loginDTO.password));
         // console.log("length user", user)
 
-        if(!user){
+        if (!user) {
             throw new BadRequestException();
-        }else{
+        } else {
             return await this.createAccessToken(user);
         }
 
     }
 
-    async getprofileData(username: string){
-        const user = await this.usersService.find_user(username);
+    async getprofileData(id: number) {
+        const user = await this.usersService.find_userid(id);
         const data = user[0]
         // console.log("user data: ", user)
         return {
             email: data.email,
-            name : data.name,
+            name: data.name,
             username: data.username
 
         }
+    }
+
+    async sendEmailPWDVerification(email: string) {
+        const user = await this.usersService.find_euser(email);
+        const data = user[0];
+
+        if (data === undefined) {
+            throw new BadRequestException("email not found.");
+        }
+
+        const token = await this.createAccessToken(data, data.password);
+        
+        return await this.mailService.sendPWDResetEmail(data, token);
+
+    }
+
+    async detailsUsersedit(accDetailsDTO: AccDetailsDTO) {
+        // console.log("accDetailsDTO: ", accDetailsDTO)
+        const user = await this.usersService.find_user(accDetailsDTO.username);
+        const data = user[0];
+        //   console.log("USER: ", user)
+        if (accDetailsDTO.field === 'password') {
+            // check password validation
+            let usersnewvalue = accDetailsDTO.value
+            const hashedusersEdit = await this.createHashAuth(usersnewvalue)
+            // console.log("pwd edit: ",hashedusersEdit)
+            data[accDetailsDTO.field] = hashedusersEdit
+            // console.log("USER: ", user)
+        } else {
+            data[accDetailsDTO.field] = accDetailsDTO.value;
+        }
+
+        const usersupdate = await this.usersService.create_user(data)
+        return {
+            email: usersupdate.email,
+            name: usersupdate.name,
+            username: usersupdate.username
+        }
+
     }
 }

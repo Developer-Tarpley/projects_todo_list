@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { Context } from "../App";
 
-function isnotValidEmail(email: string) {
+export function isnotValidEmail(email: string) {
     const isValidEmail = RegExp(/\S+[@]\w+[.]\w+/);
     if (email.match(isValidEmail)) {
         return false;

@@ -8,6 +8,7 @@ import Log_in from './Pages/Log_in';
 import Projects from './Pages/Projects';
 import User_Profile from './Pages/Profile';
 import { createStandaloneToast } from '@chakra-ui/react';
+import Home from './Pages/Landing';
 
 const { ToastContainer, toast } = createStandaloneToast();
 
@@ -45,6 +46,10 @@ const router = createBrowserRouter([
       } // end if
     },//end loader
     children: [
+      {
+        path: '/',
+        element: <Home />
+      },
       {
         path: '/login',
         element: <Log_in />
