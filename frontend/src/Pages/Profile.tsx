@@ -34,6 +34,54 @@ export default function User_Profile() {
         })
     }
 
+    async function usersDelete(){
+        if(!window.confirm("Are you sure that you want to delete account?")){
+          console.log("enjoy");
+          return;
+        }
+        
+        const token = localStorage.getItem("token");
+
+        try{
+            const response = await fetch('http://localhost:3075/auth/u/delete',{
+                method: 'POST',
+                headers:{
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
+            })
+
+            if(!response.ok){
+                const data = await response.json();
+                throw new Error(data);
+            }
+
+            if(response.ok){
+                localStorage.removeItem('token')
+                const data = await response.json();
+                console.log(data)
+                toast({
+                    title: 'See you next time!',
+                    description: "Great! Your account has been successfully deleted.",
+                    status: 'success',
+                    duration: 3000,
+                    isClosable: false,
+                })
+            }
+
+        }catch(error){
+            console.log(error);
+            
+            toast({
+                title: 'oops!',
+                description: "something went wrong. Please try again",
+                status: 'error',
+                duration: 3000,
+                isClosable: false,
+            })
+        }
+    }
+
     return (
         <Box gap={4} py={20}>
             <Heading textAlign="center">Account Details</Heading>
@@ -57,7 +105,7 @@ export default function User_Profile() {
             </Box>
             <Box display="flex" justifyContent="center" w="60%" m="0 auto" gap={4} >
                 <Button onClick={acclogout} w={"20%"}>Log Out</Button>
-                <Button border="1px" borderColor="red" _hover={{ bg: 'red', color: '#ffffff' }} w={"25%"}>Delete Account</Button>
+                <Button onClick={usersDelete} border="1px" borderColor="red" _hover={{ bg: 'red', color: '#ffffff' }} w={"25%"}>Delete Account</Button>
             </Box>
 
         </Box>

@@ -9,6 +9,7 @@ import Projects from './Pages/Projects';
 import User_Profile from './Pages/Profile';
 import { createStandaloneToast } from '@chakra-ui/react';
 import Home from './Pages/Landing';
+import Reset_PWD from './Pages/ResetPwd';
 
 const { ToastContainer, toast } = createStandaloneToast();
 
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
       {
         path: '/signup',
         element: <Sign_up />
+      },
+      {
+        path: '/reset_password/:token/:id',
+        element: <Reset_PWD />
       },
       {
         path: '/projects',

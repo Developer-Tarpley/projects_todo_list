@@ -2,20 +2,18 @@ import * as nodemailer from 'nodemailer';
 const dotenv = require("dotenv");
 dotenv.config();
 
-const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.maileruser,
-      pass: process.env.mailerpassword,
-    },
-  });
-
+// THIS IS MY TESTING UNTIL IM ABLE TO FIND A SOLUTION!!!!!!!!!!!
+var transport = nodemailer.createTransport({
+  host: "sandbox.smtp.mailtrap.io",
+  port: 2525,
+  auth: {
+    user: "49272a495863ef",
+    pass: "1b3895658656a3"
+  }
+});
   export default async function sendmail (mailOptions: any, callback: any){
     try{
-        const details = await transporter.sendMail(mailOptions);
+        const details = await transport.sendMail(mailOptions);
         callback(details);
     }catch(error){
         console.log(error);

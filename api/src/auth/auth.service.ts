@@ -97,7 +97,6 @@ export class AuthService {
             email: data.email,
             name: data.name,
             username: data.username
-
         }
     }
 
@@ -113,6 +112,31 @@ export class AuthService {
         
         return await this.mailService.sendPWDResetEmail(data, token);
 
+    }
+
+    async savenewpassword(pass: string, id:number, token:string){
+       const user = await this.usersService.find_userid(id);
+       const data = user[0];
+
+       const payload = await this.jwtService.verifyAsync(
+        token,
+        {
+          secret: data.password,
+        }
+      )
+       console.log("Payload: ", payload);
+       console.log("Data: ", data);
+       if(!payload){
+           throw new BadRequestException();
+      
+       }else{
+        let newhashed = await this.createHashAuth(pass);
+        console.log("hash: ",newhashed);
+        data.password = newhashed;
+        console.log("Data change: ", data);
+
+        return await this.usersService.create_user(data);
+       }
     }
 
     async detailsUsersedit(accDetailsDTO: AccDetailsDTO) {
@@ -138,5 +162,9 @@ export class AuthService {
             username: usersupdate.username
         }
 
+    }
+
+    async userdelete(id:number){
+        return await this.usersService.todeleteuser(id);
     }
 }
