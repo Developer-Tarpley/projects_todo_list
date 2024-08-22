@@ -2,12 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import { RouterProvider, createBrowserRouter, redirect } from 'react-router-dom';
+import { RouterProvider, createBrowserRouter} from 'react-router-dom';
 import Sign_up from './Pages/Sign_up';
 import Log_in from './Pages/Log_in';
 import Projects from './Pages/Projects';
 import User_Profile from './Pages/Profile';
 import { createStandaloneToast } from '@chakra-ui/react';
+import Home from './Pages/Landing';
+import Reset_PWD from './Pages/ResetPwd';
 
 const { ToastContainer, toast } = createStandaloneToast();
 
@@ -46,12 +48,20 @@ const router = createBrowserRouter([
     },//end loader
     children: [
       {
+        path: '/',
+        element: <Home />
+      },
+      {
         path: '/login',
         element: <Log_in />
       },
       {
         path: '/signup',
         element: <Sign_up />
+      },
+      {
+        path: '/reset_password/:token/:id',
+        element: <Reset_PWD />
       },
       {
         path: '/projects',
@@ -115,7 +125,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <>
-    <ToastContainer /> 
+    <ToastContainer />
     <RouterProvider router={router} />
   </>
 );

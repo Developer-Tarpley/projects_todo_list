@@ -11,6 +11,10 @@ export class UsersService {
         private usersRepository: Repository<User>,
     ) { };
 
+    async find_userid(id: number) {
+        return this.usersRepository.findBy({ id })
+    };
+   
     async find_user(username: string) {
         return this.usersRepository.findBy({ username })
     };
@@ -23,6 +27,10 @@ export class UsersService {
     async create_user(user: SignupDTO) {
         // console.log("USER: ", user)
         return await this.usersRepository.save({ ...user })
+    }
+
+    async todeleteuser(id: number){
+        return await this.usersRepository.delete(id)
     }
 
 }
