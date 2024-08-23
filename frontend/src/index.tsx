@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import { RouterProvider, createBrowserRouter} from 'react-router-dom';
+import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import Sign_up from './Pages/Sign_up';
 import Log_in from './Pages/Log_in';
 import Projects from './Pages/Projects';
@@ -65,7 +65,52 @@ const router = createBrowserRouter([
       },
       {
         path: '/projects',
-        element: <Projects />
+        element: <Projects />,
+        loader: async function () {
+          const token = localStorage.getItem('token');
+
+          if (token) {
+            try {
+              const response = await fetch(`http://localhost:3075/auth/u/projects`, {
+                method: "GET",
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
+              });
+
+              if (!response.ok) {
+                throw new Error('Network response was not ok');
+              }
+
+              const data = await response.json();
+              // console.log("res: ", data)
+              return data
+
+            } catch (error) {
+              // console.log("errror", error);
+              // toast({
+              //   title: 'An error occurred!',
+              //   description: `You must be logged in to view this page.`,
+              //   status: 'error',
+              //   duration: 3000,
+              //   isClosable: true,
+              // })
+              return window.location.href = '/login';
+            }
+
+          } else {
+            // console.log("NO token!");
+            // toast({
+            //   title: 'An error occurred!',
+            //   description: `You must be signed up to view this page.`,
+            //   status: 'error',
+            //   duration: 3000,
+            //   isClosable: true,
+            // })
+            return window.location.href = '/signup';
+          } // end if
+        }//end loader
       },
       {
         path: '/u/profile',

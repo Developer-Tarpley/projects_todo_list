@@ -106,5 +106,12 @@ export class AuthController {
         // console.log("req USER : ",req.user)
         return await this.authService.userdelete(req.user.sub)
     }
+   
+    @UseGuards(AuthGuard)
+    @Get('u/projects')
+    async usersprojects(@Request() req:any){
+        // console.log("req USER : ",req.user)
+        return await this.authService.getprofileData(req.user.sub)
+    }
 
 }

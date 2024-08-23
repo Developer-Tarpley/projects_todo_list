@@ -1,4 +1,4 @@
-import { Box, ChakraProvider, Heading } from '@chakra-ui/react';
+import { Box, ChakraProvider } from '@chakra-ui/react';
 import { Outlet, useLoaderData } from 'react-router-dom';
 import Header from './Components/Header';
 import { useState } from 'react';
@@ -41,7 +41,7 @@ function App() {
 
   return (
     <ChakraProvider>
-      <Box bg={"lightgray"} h={"100vh"}>
+      <Box bg={"lightgray"} h={"100vh"} overflow={'scroll'} className='mainBox'>
         <Header loggedin={loggedin} />
         <Outlet context={context} />
       </Box>

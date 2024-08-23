@@ -12,3 +12,6 @@ code {
     monospace;
 }
 
+.mainBox::-webkit-scrollbar{
+  display: none;
+}
