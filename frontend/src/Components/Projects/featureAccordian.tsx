@@ -1,14 +1,17 @@
 import { AddIcon, MinusIcon } from "@chakra-ui/icons";
-import { Box, Button, FormControl, FormErrorMessage, FormLabel, Heading, IconButton, Input, PropsOf, Textarea, useToast } from "@chakra-ui/react";
+import { Box, Button, FormControl, FormErrorMessage, FormLabel, Heading, IconButton, Input, Textarea, useToast } from "@chakra-ui/react";
 import { useState } from "react";
-import { Project } from "../../Pages/Projects";
+import { Feature } from "../../Pages/Project";
+
 
 type Props = {
-    projects: Project[],
-    setProjects: React.Dispatch<React.SetStateAction<Project[]>>
+    project:number
+    features: Feature[],
+    setFeatures: React.Dispatch<React.SetStateAction<Feature[]>>
 }
 
-export default function Accordian({ projects, setProjects }: Props) {
+export default function Feature_Accordian({ project, setFeatures }: Props) {
+    // console.log("features: ", features)
     const toast = useToast();
 
     const [select, setSelect] = useState(false);
@@ -32,14 +35,14 @@ export default function Accordian({ projects, setProjects }: Props) {
 
     }
 
-    async function addProject() {
+    async function addFeature() {
         setIsErrorInput(true);
         const token = localStorage.getItem("token");
         if (name === "") {
             return;
         }
         try {
-            const response = await fetch('http://localhost:3075/auth/u/create_project', {
+            const response = await fetch('http://localhost:3075/auth/u/create_feature', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -48,22 +51,16 @@ export default function Accordian({ projects, setProjects }: Props) {
                 body: JSON.stringify({
                     name,
                     description,
+                    projectId: project
                 })
             })
             if (!response.ok) {
                 throw new Error("ERROR adding projects");
             }
             const data = await response.json();
+            console.log("data feature: ", data)
 
-            setProjects([...projects,
-                {
-                    name: data.name,
-                    description: data.description,
-                    status: data.status,
-                    id: data.id,
-                    features: data.features
-                }
-            ])
+            setFeatures(data)
 
             setName("");
             setDescription("");
@@ -71,7 +68,7 @@ export default function Accordian({ projects, setProjects }: Props) {
 
             toast({
                 title: 'Success.',
-                description: "You have added a project.",
+                description: "You have added a feature.",
                 status: 'success',
                 duration: 3000,
                 isClosable: true,
@@ -81,7 +78,7 @@ export default function Accordian({ projects, setProjects }: Props) {
             console.log("ERROR: ", error);
             toast({
                 title: 'oops!',
-                description: "Sorry a project cannot be added at this time. Please try again.",
+                description: "Sorry a feature cannot be added at this time. Please try again.",
                 status: 'error',
                 duration: 3000,
                 isClosable: true,
@@ -91,14 +88,14 @@ export default function Accordian({ projects, setProjects }: Props) {
 
     return (
         //container
-        <Box>
+        <Box m={4} >
             {/* {accordion wrapper} */}
-            <Box m={10}>
+            <Box>
                 {/* {accordian} */}
-                <Box w="65%" m={"0px auto"}>
+                <Box>
                     {/* {heading} */}
                     <Box display="flex" justifyContent="space-between" background="#fff" p={2}>
-                        <Heading as="h2" fontSize="xl" lineHeight="40px">Add Project</Heading>
+                        <Heading as="h2" fontSize="xl" lineHeight="40px">Add Feature</Heading>
                         {
                             select ?
                                 <IconButton
@@ -123,10 +120,10 @@ export default function Accordian({ projects, setProjects }: Props) {
                     </Box>
                     {
                         select &&
-                        <Box background="#fff" p="15px 20px" borderTop="1px solid #333" fontSize="xl"
+                        <Box background="#fff" p="2" boxShadow="lg" borderTop="1px solid lightgray" fontSize="xl"
                         >
                             <FormControl isRequired isInvalid={isErrorName} w="100%" mb={4}>
-                                <FormLabel>Project Name</FormLabel>
+                                <FormLabel>Feature Name</FormLabel>
                                 <Input type='text' value={name ? name : ""} onChange={(e) => [setName(e.target.value), setIsErrorInput(false)]} />
                                 {!isErrorName ? null : <FormErrorMessage>Project Name is required.</FormErrorMessage>}
                             </FormControl>
@@ -136,7 +133,7 @@ export default function Accordian({ projects, setProjects }: Props) {
                                 <Textarea placeholder="(...Optional)" size={"sm"} value={description ? description : ""} onChange={(e) => [setDescription(e.target.value)]} />
                             </FormControl>
 
-                            <Button onClick={addProject} w="100%">Create Project</Button>
+                            <Button onClick={addFeature} w="100%">Create Feature</Button>
                         </Box>
                     }
 

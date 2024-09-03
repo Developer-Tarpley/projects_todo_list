@@ -14,13 +14,22 @@ export type Context = {
   toggleLog: () => void,
   showReset: Boolean,
   toggleReset: () => void,
+  showUserStory: Boolean,
+  toggleUserStory: () => void,
 }
 
 function App() {
   const data = useLoaderData() as DATA | undefined;
   const [loggedin, setloggedin] = useState(data?.username !== undefined)
   const [showReset, setShowReset] = useState(false)
+  const [showUserStory, setShowUserStory] = useState(false)
+  
 
+
+  function toggleUserStory() {
+    setShowUserStory(!showUserStory);
+  }
+ 
   function toggleReset() {
     setShowReset(!showReset);
   }
@@ -33,7 +42,9 @@ function App() {
     loggedin,
     toggleLog,
     showReset,
-    toggleReset
+    toggleReset,
+    showUserStory,
+    toggleUserStory
   }
 
   // console.log("data hook: ",data);

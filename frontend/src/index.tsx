@@ -10,6 +10,7 @@ import User_Profile from './Pages/Profile';
 import { createStandaloneToast } from '@chakra-ui/react';
 import Home from './Pages/Landing';
 import Reset_PWD from './Pages/ResetPwd';
+import Project from './Pages/Project';
 
 const { ToastContainer, toast } = createStandaloneToast();
 
@@ -39,7 +40,9 @@ const router = createBrowserRouter([
           return data
 
         } catch (error) {
+          console.log(error)
           return {};
+          
         }
 
       } else {
@@ -71,15 +74,15 @@ const router = createBrowserRouter([
 
           if (token) {
             try {
-              const response = await fetch(`http://localhost:3075/auth/u/projects`, {
-                method: "GET",
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
-              });
+              const response = await  fetch(`http://localhost:3075/auth/u/projects`, {
+                  method: "GET",
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
+                })
 
-              if (!response.ok) {
+              if (!response) {
                 throw new Error('Network response was not ok');
               }
 
@@ -88,26 +91,75 @@ const router = createBrowserRouter([
               return data
 
             } catch (error) {
-              // console.log("errror", error);
-              // toast({
-              //   title: 'An error occurred!',
-              //   description: `You must be logged in to view this page.`,
-              //   status: 'error',
-              //   duration: 3000,
-              //   isClosable: true,
-              // })
+              console.log("errror", error);
+              toast({
+                title: 'An error occurred!',
+                description: `You must be logged in to view this page.`,
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+              })
               return window.location.href = '/login';
             }
 
           } else {
-            // console.log("NO token!");
-            // toast({
-            //   title: 'An error occurred!',
-            //   description: `You must be signed up to view this page.`,
-            //   status: 'error',
-            //   duration: 3000,
-            //   isClosable: true,
-            // })
+            console.log("NO token!");
+            toast({
+              title: 'An error occurred!',
+              description: `You must be signed up to view this page.`,
+              status: 'error',
+              duration: 3000,
+              isClosable: true,
+            })
+            return window.location.href = '/signup';
+          } // end if
+        }//end loader
+      },
+      {
+        path: '/u/project/:id',
+        element: <Project/>,
+        loader: async function ({params}) {
+          const token = localStorage.getItem('token');
+
+          if (token) {
+            try {
+              const response = await  fetch(`http://localhost:3075/auth/u/project/${params.id}`, {
+                  method: "GET",
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                  },
+                })
+
+              if (!response) {
+                throw new Error('Network response was not ok');
+              }
+
+              const data = await response.json();
+              // console.log("res: ", data)
+              return data
+
+            } catch (error) {
+              console.log("errror", error);
+              toast({
+                title: 'An error occurred!',
+                description: `You must be logged in to view this page.`,
+                status: 'error',
+                duration: 3000,
+                isClosable: true,
+              })
+              return window.location.href = '/login';
+            }
+
+          } else {
+            console.log("NO token!");
+            toast({
+              title: 'An error occurred!',
+              description: `You must be signed up to view this page.`,
+              status: 'error',
+              duration: 3000,
+              isClosable: true,
+            })
             return window.location.href = '/signup';
           } // end if
         }//end loader

@@ -2,16 +2,26 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt'
 import { JwtService } from '@nestjs/jwt';
-import { AccDetailsDTO, LoginDTO, SignupDTO } from './auth.controller';
+import { AccDetailsDTO, FeaturesDTO, LoginDTO, ProjectsDTO, SignupDTO, UserStoryDTO } from './auth.controller';
 import { User } from 'src/users/entity/users.entity';
 import { MailService } from 'src/mail/mail.service';
+import { ProjectsService } from 'src/projects/projects.service';
+import { FeaturesService } from 'src/feature/features.service';
+import { UserstoryService } from 'src/user_story/userstory.service';
 
 
 
 
 @Injectable()
 export class AuthService {
-    constructor(private usersService: UsersService, private jwtService: JwtService, private mailService: MailService) { }
+    constructor(
+        private usersService: UsersService,
+        private jwtService: JwtService,
+        private mailService: MailService,
+        private projectsService: ProjectsService,
+        private featuresService: FeaturesService,
+        private userstoryService: UserstoryService,
+    ) { }
 
     async createHashAuth(userhash: string) {
         const saltrounds = 10;
@@ -31,6 +41,34 @@ export class AuthService {
             return await this.jwtService.signAsync(payload);
         }
     }
+
+    async createproject(projectsDTO: ProjectsDTO, userId: number) {
+        return await this.projectsService.createProject(projectsDTO, userId);
+    }
+
+    async createfeature(featuresDTO: FeaturesDTO, userId: number) {
+        const projects = await this.projectsService.find_userprojectid(userId);
+        const projectId = projects.find((project)=> project.id === featuresDTO.projectId)
+
+        return await this.featuresService.createProjectFeature(featuresDTO, projectId.id);
+    }
+    
+    async createUserStory(userstoryDTO: UserStoryDTO, userId: number) {
+        console.log("userstoryDTO", userstoryDTO);
+        console.log("userstory userid", userId);
+
+        const projects = await this.projectsService.find_userprojectid(userId);
+        // console.log("projects: ", projects)
+        const projectfeatures = projects.find((project)=> project.id === userstoryDTO.projectId)
+        // console.log("project id filtered: ", projectfeatures)
+        
+        const featureId = projectfeatures.features.find((feature)=> feature.id === userstoryDTO.featureId)
+        // console.log("feature id filtered: ", featureId)
+
+        return await this.userstoryService.createFeatureuserstory(userstoryDTO, featureId.id);
+    }
+   
+   
 
 
     async signup(signupDTO: SignupDTO) {
@@ -79,7 +117,6 @@ export class AuthService {
     async login(loginDTO: LoginDTO) {
         // check if username already exists
         const user = (await this.validateUser(loginDTO.username, loginDTO.password));
-        // console.log("length user", user)
 
         if (!user) {
             throw new BadRequestException();
@@ -92,12 +129,32 @@ export class AuthService {
     async getprofileData(id: number) {
         const user = await this.usersService.find_userid(id);
         const data = user[0]
-        // console.log("user data: ", user)
-        return {
-            email: data.email,
-            name: data.name,
-            username: data.username
+
+        if (!data) {
+            return {}
+        } else {
+
+            return {
+                email: data.email,
+                name: data.name,
+                username: data.username,
+            }
         }
+    }
+
+    async getprojectsdata(id: number) {
+        const user = await this.getprofileData(id);
+        const projects = await this.projectsService.find_userprojectid(id);
+
+        return {
+            user,
+            projects
+        }
+    }
+
+    async getproject(id: number, userId: number) {
+        const projects = await this.getprojectsdata(userId);
+        return projects.projects.filter(project => project.id === id)
     }
 
     async sendEmailPWDVerification(email: string) {
@@ -109,48 +166,47 @@ export class AuthService {
         }
 
         const token = await this.createAccessToken(data, data.password);
-        
+
         return await this.mailService.sendPWDResetEmail(data, token);
 
     }
 
-    async savenewpassword(pass: string, id:number, token:string){
-       const user = await this.usersService.find_userid(id);
-       const data = user[0];
+    async savenewpassword(pass: string, id: number, token: string) {
+        const user = await this.usersService.find_userid(id);
+        const data = user[0];
 
-       const payload = await this.jwtService.verifyAsync(
-        token,
-        {
-          secret: data.password,
+        const payload = await this.jwtService.verifyAsync(
+            token,
+            {
+                secret: data.password,
+            }
+        )
+        console.log("Payload: ", payload);
+        console.log("Data: ", data);
+        if (!payload) {
+            throw new BadRequestException();
+
+        } else {
+            let newhashed = await this.createHashAuth(pass);
+            console.log("hash: ", newhashed);
+            data.password = newhashed;
+            console.log("Data change: ", data);
+
+            return await this.usersService.create_user(data);
         }
-      )
-       console.log("Payload: ", payload);
-       console.log("Data: ", data);
-       if(!payload){
-           throw new BadRequestException();
-      
-       }else{
-        let newhashed = await this.createHashAuth(pass);
-        console.log("hash: ",newhashed);
-        data.password = newhashed;
-        console.log("Data change: ", data);
-
-        return await this.usersService.create_user(data);
-       }
     }
 
     async detailsUsersedit(accDetailsDTO: AccDetailsDTO) {
-        // console.log("accDetailsDTO: ", accDetailsDTO)
         const user = await this.usersService.find_user(accDetailsDTO.username);
         const data = user[0];
-        //   console.log("USER: ", user)
+       
         if (accDetailsDTO.field === 'password') {
             // check password validation
             let usersnewvalue = accDetailsDTO.value
             const hashedusersEdit = await this.createHashAuth(usersnewvalue)
-            // console.log("pwd edit: ",hashedusersEdit)
+            
             data[accDetailsDTO.field] = hashedusersEdit
-            // console.log("USER: ", user)
+           
         } else {
             data[accDetailsDTO.field] = accDetailsDTO.value;
         }
@@ -164,7 +220,7 @@ export class AuthService {
 
     }
 
-    async userdelete(id:number){
+    async userdelete(id: number) {
         return await this.usersService.todeleteuser(id);
     }
 }
